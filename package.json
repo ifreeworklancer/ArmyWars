@@ -1,0 +1,28 @@
+{
+  "name": "armywars",
+  "version": "1.0.0",
+  "description": "ArmyWars game (Phaser 3 + TypeScript)",
+  "main": "index.js",
+  "scripts": {
+    "watch": "cross-env NODE_ENV=development node_modules/webpack/bin/webpack.js --watch --progress --config=node_modules/laravel-mix/setup/webpack.config.js",
+    "build": "cross-env NODE_ENV=production node_modules/webpack/bin/webpack.js --config=node_modules/laravel-mix/setup/webpack.config.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ArmyWars"
+  },
+  "author": "Alex Yakushov",
+  "license": "MIT",
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "laravel-mix": "^6.0.19",
+    "phaser": "^3.54.0",
+    "postcss": "^8.1.14",
+    "sass": "^1.32.13",
+    "sass-loader": "^11.0.1",
+    "ts-loader": "^9.1.2",
+    "typescript": "^4.2.4",
+    "webpack": "^5.37.0",
+    "webpack-cli": "^4.7.0"
+  }
+}
