@@ -1,11 +1,9 @@
 import "phaser";
 
 export class GameScene extends Phaser.Scene {
-    walls: Phaser.Physics.Arcade.StaticGroup;
+    map: Phaser.Tilemaps.Tilemap;
+    marker: Phaser.GameObjects.Graphics;
     player: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
-    target = new Phaser.Math.Vector2();
-    info: Phaser.GameObjects.Text;
-    isBuildingBarrier: boolean = true;
 
     constructor() {
         super({
@@ -18,62 +16,31 @@ export class GameScene extends Phaser.Scene {
     }
 
     preload(): void {
+        this.load.image('tiles', [ 'assets/tilemaps/tiles/drawtiles1.png', 'assets/tilemaps/tiles/drawtiles1_n.png' ]);
+        this.load.tilemapCSV('map', 'assets/tilemaps/maps/grid.csv');
         this.load.spritesheet('car', 'assets/sprites/car.png', {frameWidth: 80, frameHeight: 65})
-        this.load.image('walls', 'assets/sprites/walls.png')
     }
 
     create(): void {
-        this.player = this.physics.add.sprite(100, 500, 'car', 0);
-        this.walls = this.physics.add.staticGroup();
+        this.map = this.make.tilemap({ key: 'map' });
+        let tileset = this.map.addTilesetImage('tiles', null, 32, 32,1, 2);
+        this.map.createLayer(0, tileset, 0, 0);
 
-        this.physics.add.collider(this.walls, this.player, () => {
-            this.player.body.reset(this.player.x, this.player.y);
-        });
-
-        this.input.on('pointerup', this.handleClick, this);
-
-        this.info = this.add.text(10, 10, 'Click anywhere in the area to create an barrier\n\nAfter you add all the barrier you need, press space to add a route', {font: '16px Arial Bold'});
-
-        this.input.keyboard.addKey('SPACE').once('down', () => {
-            this.isBuildingBarrier = false
-            this.info.setText('Click anywhere in the area to plot a route for the car')
-        });
+        this.marker = this.add.graphics();
+        this.marker.lineStyle(3, 0xffffff, 1);
+        this.marker.strokeRect(0, 0, this.map.tileWidth, this.map.tileHeight);
+        this.player = this.physics.add.sprite(38, 520, 'car', 0);
+        this.player.scale = 0.8;
     }
 
     update(time): void {
-        let distance = Phaser.Math.Distance.Between(this.player['x'], this.player['y'], this.target.x, this.target.y);
 
-        if (this.player.body.speed > 0) {
-            //  4 is our distance tolerance, i.e. how close the source can get to the target
-            //  before it is considered as being there. The faster it moves, the more tolerance is required.
-            if (distance < 4) {
-                this.player.body.reset(this.target.x, this.target.y);
-            }
-        }
-    }
+        // Rounds down to nearest tile
+        let pointerTileX = this.map.worldToTileX(this.input.activePointer.x);
+        let pointerTileY = this.map.worldToTileY(this.input.activePointer.y);
 
-    handleClick(pointer) {
-        this.target.x = pointer.x;
-        this.target.y = pointer.y;
-        if (this.isBuildingBarrier) {
-            this.buildingBarrier()
-            return
-        }
-        this.carMovement()
-    }
-
-    carMovement() {
-        this.physics.moveToObject(this.player, this.target, 200);
-    }
-
-    buildingBarrier() {
-        this.walls.create(this.target.x, this.target.y, 'walls').setInteractive();
-        this.walls.getChildren().forEach(wall => {
-            wall.on('pointerup', () => {
-                if (this.isBuildingBarrier) {
-                    wall.destroy()
-                }
-            })
-        })
+        // Snap to tile coordinates, but in world space
+        this.marker.x = this.map.tileToWorldX(pointerTileX);
+        this.marker.y = this.map.tileToWorldY(pointerTileY);
     }
 }
