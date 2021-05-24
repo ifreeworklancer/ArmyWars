@@ -17,11 +17,9 @@ export class Game extends Phaser.Scene {
         this.camera = this.cameras.main;
         this.camera.setBounds(0, 0, 20 * 32, 20 * 32);
 
-
         let phaserGuy = this.physics.add.sprite(38, 520, 'car', 0);
         phaserGuy.scale = 0.8;
         phaserGuy.setOrigin(0.4)
-        console.log(phaserGuy.originX)
         phaserGuy.setDepth(1);
         this.camera.startFollow(phaserGuy);
         this.player = phaserGuy;
@@ -88,16 +86,12 @@ export class Game extends Phaser.Scene {
         let toY = Math.floor(y / 32);
         let fromX = Math.floor(this.player.x / 32);
         let fromY = Math.floor(this.player.y / 32);
-        console.log('going from (' + fromX + ',' + fromY + ') to (' + toX + ',' + toY + ')');
 
-        this.finder.findPath(fromX, fromY, toX, toY, function (path) {
-            if (path === null) {
-                console.warn("Path was not found.");
-            } else {
-                console.log(path);
+        this.finder.findPath(fromX, fromY, toX, toY, (path) => {
+            if (path !== null) {
                 this.moveCharacter(path);
             }
-        }.bind(this));
+        });
         this.finder.calculate();
     };
 
